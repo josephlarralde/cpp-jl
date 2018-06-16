@@ -1,0 +1,24 @@
+**/.DS_Store
+**/Thumbs.db
+
+# IGNORE ALL ONGOING WORK IN DSP
+
+dsp/core/
+
+dsp/effects/
+!dsp/effects/Stut.*
+
+dsp/sampler/
+!dsp/sampler/Gbend.*
+
+dsp/synthesis/
+dsp/tests/
+
+dsp/utilities/
+!dsp/utilities/wavetable.h
+
+# IGNORE ALL OTHER FOLDER FOR NOW
+
+fsm/
+plug/
+test/
