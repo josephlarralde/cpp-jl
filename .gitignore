@@ -16,7 +16,7 @@ dsp/sampler/*
 dsp/synthesis/
 dsp/tests/
 
-dsp/utilities/
+dsp/utilities/*
 !dsp/utilities/wavetable.h
 
 # IGNORE ALL OTHER FOLDER FOR NOW
