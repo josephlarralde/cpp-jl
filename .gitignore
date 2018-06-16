@@ -5,11 +5,13 @@
 
 dsp/core/
 
-dsp/effects/
-!dsp/effects/Stut.*
+dsp/effects/*
+!dsp/effects/Stut.h
+!dsp/effects/Stut.cpp
 
-dsp/sampler/
-!dsp/sampler/Gbend.*
+dsp/sampler/*
+!dsp/sampler/Gbend.h
+!dsp/sampler/Gbend.cpp
 
 dsp/synthesis/
 dsp/tests/
