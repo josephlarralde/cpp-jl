@@ -40,7 +40,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "../jl.dsp.h"
+#include "../../jl.h"
 #include "Stut.h"
 #include "m_pd.h"
 

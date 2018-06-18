@@ -50,7 +50,7 @@
 // #define GBEND_MAX(X, M) (X < M) ? M : X
 // #define GBEND_CLIP(X, A, B) (X < A) ? A : ((X > B) ? B : X)
 
-#include "../jl.dsp.h"
+#include "../../jl.h"
 #include "../utilities/wavetable.h"
 #include "Gbend.h"
 // #include "m_pd.h"
