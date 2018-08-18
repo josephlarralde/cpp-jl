@@ -40,9 +40,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "../../jl.h"
 #include "Stut.h"
-#include "m_pd.h"
+// #include "m_pd.h"
+
+namespace jl {
 
 void
 Stut::setSamplingRate(float f) {
@@ -271,6 +272,7 @@ Stut::endReachCallback(int endReachType) {
 void
 Stut::computeParameters() {
   loops = nextLoops;
+
   // MINIMUM SELECTION 1 SIGNAL BLOCK SIZE
   // TODO: CHECK IF MINIMUM 2 SAMPLES WOULD BE BETTER (ALLOWING 1 SAMPLE FADES)
 
@@ -298,3 +300,5 @@ Stut::computeParameters() {
     // not very clear, though ... why not using sSlice directly ?
   }
 }
+
+} /* end namespace jl */

@@ -50,7 +50,11 @@
 #ifndef _JL_GBEND_H_
 #define _JL_GBEND_H_
 
-#define JL_GBEND_MAX_BLOCK_SIZE 4096
+// #define JL_GBEND_MAX_BLOCK_SIZE 4096
+
+#include "../../jl.h"
+
+namespace jl {
 
 class Gbend {
 private:
@@ -68,7 +72,7 @@ private:
   bool stopping, realStopping;
 
   double interruptIndex;
-  double sIndexArray[JL_GBEND_MAX_BLOCK_SIZE];
+  double sIndexArray[JL_MAX_BLOCK_SIZE];
   double lastLastIndex;
   bool isFirstVector;
 
@@ -86,9 +90,6 @@ private:
   // THEN SWAP BUFFERS IN YOUR HOST ENVIRONMENT.
   // SEE THE PD EXTERNAL FOR AN EXAMPLE IMPLEMENTATION.
 
-  // SOME SEGFAULTS AND VIOLENT CRASHES STILL HAPPEN SOMETIMES ... NEED TO DIG THIS
-  // PROBABLY A THREAD SAFETY ISSUE
-
   float *buf;
   float bufMsr;
   unsigned int bufChannels;
@@ -101,6 +102,7 @@ private:
 
   bool switchBufAsap;
 
+  float msrr; // ratio to apply to pitch when msr != bufMsr
   long blk;
 
 public:
@@ -111,9 +113,9 @@ public:
   interruptIndex(0), lastLastIndex(0), isFirstVector(true),
   begin(0), end(0), sBegin(0), sLen(0), sStopLen(0), silentBlockEnd(false),
   rvs(false), realRvs(false), loop(false), realLoop(false),
-  bufMsr(1), bufLen(0),
-  nextBufMsr(1), nextBufLen(0), switchBufAsap(false),
-  blk(64) {
+  bufMsr(44.1), bufLen(0),
+  nextBufMsr(44.1), nextBufLen(0), switchBufAsap(false),
+  msrr(1), blk(64) {
     sFadi = fadi * msr;
     sFado = fado * msr;
     sInterrupt = interrupt * msr;
@@ -151,5 +153,7 @@ private:
   void updateBuffer();
   void playSilence(float **outs);
 };
+
+} /* end namespace jl */
 
 #endif /* _JL_GBEND_H_ */

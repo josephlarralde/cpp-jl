@@ -35,23 +35,28 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _JL_DSP_WAVETABLE_H_
-#define _JL_DSP_WAVETABLE_H_
+#ifndef _JL_WAVETABLE_H_
+#define _JL_WAVETABLE_H_
 
 #include <cmath>
+#include "../../jl.h"
+
+namespace jl {
 
 //============================ INTERPOLATORS =================================//
+
+//------------------------------- LINEAR -------------------------------------//
 
 // p is minimum the 1sr sample of a buffer
 // and maximum the (n - 1)th sample of the same buffer
 // (or loop over buffer length ?)
-static inline float interpolateLinear(float *buf, unsigned int index, float frac) {
+static inline float interpolateLinear(sample *buf, unsigned int index, float frac) {
   float *p = buf + index;
 
   return (1. - frac) * (*p) + frac * (*(p + 1));
 }
 
-static inline void interpolateLinearStride(float *buf, float *res, unsigned int index, float frac, unsigned int size) {
+static inline void interpolateLinearStride(sample *buf, float *res, unsigned int index, float frac, unsigned int size) {
   float *p = buf + index;
 
   for (unsigned int i = 0; i < size; ++i) {
@@ -59,35 +64,71 @@ static inline void interpolateLinearStride(float *buf, float *res, unsigned int 
   }
 }
 
-// p is minimum the 2nd sample of a buffer
-// and maximum the (n - 2)th sample of the same buffer
-// (or loop over buffer length ?)
-// use zero-padding wherever needed
-static inline float interpolateBicubic(float *buf, unsigned int index, float frac) {
+//------------------------------- BICUBIC ------------------------------------//
+
+// mostly inspired from pure data's tabread4 object
+// TODO : understand how miller's algorithm works
+// what kind of optimization is this ? is "cubic" an appropriate name ?
+// dig this :
+// http://en.dsplib.org/content/resampling_lagrange_ex/resampling_lagrange_ex.html#r2
+// ==> might help to avoid aliasing
+
+// also : understand the pink elephant paper and add some sinc based algorithms
+// http://yehar.com/blog/wp-content/uploads/2009/08/deip.pdf
+
+static inline float interpolateCubic(sample *buf, unsigned int size,
+                                       unsigned int index, float frac,
+                                       bool cyclic = false) {
   float *p = buf + index;
   float a, b, c, d, cminusb;
 
-  a = (index == 0) ? 0 : *(p - 1);
-  b = *p;
-  c = *(p + 1);
-  d = *(p + 2);
+  // if cyclic, wrap around buffer values, otherwise zero-pad
+
+  a = (index <= 0)
+    ? (cyclic ? *(buf + size + index - 1) : 0)
+    : *(p - 1);
+
+  b = *(p);
+
+  c = (index > size - 2)
+    ? (cyclic ? *(buf + index - size + 1) : 0)
+    : *(p + 1);
+
+  d = (index > size - 3)
+    ? (cyclic ? *(buf + index - size + 2) : 0)
+    : *(p + 2);
+
   cminusb = c - b;
 
   return b + frac * (
-                      cminusb - 0.1666667f * (1. - frac) *
-                      ((d - a - 3.0f * cminusb) * frac + (d + 2.0f * a - 3.0f * b))
-                    );
+    cminusb - 0.1666667f * (1. - frac) *
+    ((d - a - 3.0f * cminusb) * frac + (d + 2.0f * a - 3.0f * b))
+  );
 }
 
-static inline void interpolateBicubicStride(float *buf, float *res, unsigned int index, float frac, unsigned int size) {
-  float *p = buf + index;
+// the same with a stride ...
+
+static inline void interpolateCubicStride(sample *buf, sample *res, unsigned int size,
+                                            unsigned int index, float frac,
+                                            unsigned int stride, bool cyclic = false) {
+  float *p = buf + index * stride;
   float a, b, c, d, cminusb;
 
-  for (unsigned int i = 0; i < size; ++i) {
-    a = (index == 0) ? 0 : *(p + i - size);
+  for (unsigned int i = 0; i < stride; ++i) {
+    a = (index <= 0)
+      ? (cyclic ? *(buf + stride * (size + index - 1)) : 0)
+      : *(p + i - stride);
+
     b = *(p + i);
-    c = *(p + i + size);
-    d = *(p + i + 2 * size);
+
+    c = (index > size - 2)
+      ? (cyclic ? *(buf + stride * (index - size + 1)) : 0)
+      : *(p + i + stride);
+
+    d = (index > size - 3)
+      ? (cyclic ? *(buf + stride * (index - size + 2)) : 0)
+      : *(p + i + 2 * stride);
+
     cminusb = c - b;
 
     *(res + i) = b + frac * (
@@ -99,16 +140,20 @@ static inline void interpolateBicubicStride(float *buf, float *res, unsigned int
 
 //============================== GENERATORS ==================================//
 
-static inline void generateSine(float *p, int nsamples) {
-  for (int i = 0; i < nsamples; ++i) {
-    *(p + i) = sin((float)i * 2.0f * M_PI / nsamples);
+static inline void generateSine(sample *p, unsigned int size) {
+  for (unsigned int i = 0; i < size; ++i) {
+    *(p + i) = sin((float)i * 2.0f * M_PI / size);
   }
 }
 
-static inline void generateHann(float *p, int nsamples) {
-  for (int i = 0; i < nsamples; ++i) {
-    *(p + i) = 0.5 * (1 - cos(((float)i * 2.0f * M_PI) / (nsamples - 1)));
+static inline void generateHann(sample *p, unsigned int size) {
+  for (unsigned int i = 0; i < size; ++i) {
+    *(p + i) = 0.5 * (1 - cos(((float)i * 2.0f * M_PI) / (size - 1)));
   }
 }
 
-#endif /* _JL_DSP_WAVETABLE_UTILITIES_H_ */
+// TODO : generateAATri, generateAASaw, generateAASqr (and also non-anti-aliased) ?
+
+} /* end namespace jl */
+
+#endif /* _JL_WAVETABLE_H_ */

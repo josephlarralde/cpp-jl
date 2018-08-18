@@ -47,13 +47,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-// #define GBEND_MAX(X, M) (X < M) ? M : X
-// #define GBEND_CLIP(X, A, B) (X < A) ? A : ((X > B) ? B : X)
+// TODO : consider rewriting this class based on instances of Ramp classes
 
-#include "../../jl.h"
 #include "../utilities/wavetable.h"
 #include "Gbend.h"
 // #include "m_pd.h"
+
+namespace jl {
 
 void
 Gbend::setBuffer(float *b, unsigned long bLen, float bSr, unsigned int bChannels) {
@@ -154,6 +154,9 @@ Gbend::stop() {
 
 void
 Gbend::process(float *in, float **outs, unsigned int blockSize) {
+  // TODO : add security here in case blockSize > JL_MAX_BLOCK_SIZE
+  // and make method call itself as many times as necessary
+  
   long longBlockSize = (long)(blockSize);
 
   if (blk != longBlockSize) {
@@ -182,7 +185,7 @@ Gbend::process(float *in, float **outs, unsigned int blockSize) {
 
   if (playing) {
     while (ntmp-- > 0) {
-      *sIndexArrayCursor = exp((*in++ + pitch) * 0.057762265) +
+      *sIndexArrayCursor = exp((*in++ + pitch) * 0.057762265) * msrr +
                               ((ntmp == blk - 1)
                                 ? lastLastIndex
                                 : *(sIndexArrayCursor - 1));
@@ -297,7 +300,7 @@ Gbend::process(float *in, float **outs, unsigned int blockSize) {
 
       if (index < bufLen - 3 && buf != 0) {
         // ok, go (this works with pd but other conditions might be required for more safety)
-        interpolateBicubicStride(buf, &(res[0]), index, frac, bufChannels);
+        interpolateCubicStride(buf, &(res[0]), bufLen, index, frac, bufChannels);
       } else {
         // don't read into buf !
         for (unsigned int i = 0; i < bufChannels; ++i) {
@@ -408,14 +411,14 @@ Gbend::computeParameters() {
     // TODO: CHECK IF MINIMUM 2 SAMPLES WOULD WORK AS WELL
     // (ALLOWING 1 SAMPLE FADES)
 
-    sBegin = (long) (tmp * bufMsr);
+    sBegin = (long) (tmp * msr); // was bufMsr
     sBegin = (long) ((sBegin < 0)
                     ? 0
                     : ((sBegin > bufLen - blk)
                       ? (bufLen - blk)
                       : sBegin));
 
-    sLen = (long) (fabs(end - begin) * bufMsr);
+    sLen = (long) (fabs(end - begin) * msr); // was bufMsr
     sLen = (sLen > blk) ? sLen : blk;
     sStopLen = sLen;
 
@@ -451,6 +454,8 @@ Gbend::updateBuffer() {
     bufChannels = nextBufChannels;
     switchBufAsap = false;
 
+    msrr = msr / bufMsr;
+
     // post("Gbend using new buffer of length %i, msr %f and %i channels", bufLen, bufMsr, bufChannels);
     bufUpdatedCallback();
   }
@@ -467,3 +472,5 @@ void Gbend::playSilence(float **outs) {
     }
   }
 }
+
+} /* end namespace jl */

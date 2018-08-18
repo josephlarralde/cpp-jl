@@ -43,6 +43,10 @@
 #ifndef _JL_STUT_H_
 #define _JL_STUT_H_
 
+#include "../../jl.h"
+
+namespace jl {
+
 class Stut {
 private:
   unsigned int channels;
@@ -84,7 +88,8 @@ private:
 public:
   Stut(float bDuration, unsigned int c = 1) :
   channels(c),
-  msr(44.1), slice(0), fadi(5), fado(5), interrupt(5), release(5),
+  msr(44.1), slice(0),
+  fadi(5), fado(5), interrupt(5), release(5),
   sSlice(0), sStopLen(0),
   interrupting(false), interruptIndex(0),
   releasing(false), releaseIndex(0),
@@ -129,5 +134,7 @@ public:
 private:
   void computeParameters();
 };
+
+} /* end namespace jl */
 
 #endif /* _JL_STUT_H_ */
