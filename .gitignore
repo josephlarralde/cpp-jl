@@ -1,22 +1,31 @@
 **/.DS_Store
 **/Thumbs.db
 
-# IGNORE ALL ONGOING WORK IN DSP
+control/*
+# !control/harmony/Scales.h
+# !control/harmony/Scales.cpp
 
-dsp/core/
+core/*
 
 dsp/effects/*
 !dsp/effects/Stut.h
 !dsp/effects/Stut.cpp
+!dsp/effects/Compress.h
+!dsp/effects/Compress.cpp
 
 dsp/sampler/*
 !dsp/sampler/Gbend.h
 !dsp/sampler/Gbend.cpp
 
-dsp/synthesis/
-dsp/tests/
+dsp/synthesis/*
+!dsp/synthesis/Oscillator.h
+!dsp/synthesis/Oscillator.cpp
 
 dsp/utilities/*
+!dsp/utilities/Average.h
+!dsp/utilities/OnePole.h
+!dsp/utilities/Ramp.h
+!dsp/utilities/units.h
 !dsp/utilities/wavetable.h
 
 # IGNORE ALL OTHER FOLDER FOR NOW
