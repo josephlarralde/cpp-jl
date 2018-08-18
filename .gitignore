@@ -8,10 +8,12 @@ control/*
 core/*
 
 dsp/effects/*
-!dsp/effects/Stut.h
-!dsp/effects/Stut.cpp
 !dsp/effects/Compress.h
 !dsp/effects/Compress.cpp
+!dsp/effects/Distort.h
+!dsp/effects/Distort.cpp
+!dsp/effects/Stut.h
+!dsp/effects/Stut.cpp
 
 dsp/sampler/*
 !dsp/sampler/Gbend.h
@@ -23,6 +25,7 @@ dsp/synthesis/*
 
 dsp/utilities/*
 !dsp/utilities/Average.h
+!dsp/utilities/FFT.h
 !dsp/utilities/OnePole.h
 !dsp/utilities/Ramp.h
 !dsp/utilities/units.h
