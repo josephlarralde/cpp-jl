@@ -66,23 +66,14 @@ T clipInfinity(T val) {
 
 template <typename T>
 T dbtoa(T db) {
-  T realdb = db;
-  if (db == -std::numeric_limits<T>::infinity()) {
-    realdb = std::numeric_limits<T>::lowest();
-  }
-
-  return pow(10, realdb / 20);
+  T res = pow(10, clipInfinity<T>(db) / 20);
+  return clipInfinity<T>(res);
 }
 
 template <typename T>
 T atodb(T a) {
-  T res = 20 * log10(a);
-
-  if (res == -std::numeric_limits<T>::infinity()) {
-    return std::numeric_limits<T>::lowest();
-  }
-
-  return res;
+  T res = 20 * log10(clipInfinity<T>(a));
+  return clipInfinity<T>(res);
 }
 
 } /* end namespace jl */
