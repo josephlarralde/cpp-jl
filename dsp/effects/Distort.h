@@ -54,7 +54,7 @@ public:
   ~Overdrive() {}
 
   void setFactor(float f) {
-    cutoffFrequency = f;
+    factor = f;
   }
 
   T process(T in) {

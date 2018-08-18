@@ -291,9 +291,9 @@ private:
   float samplingRate;
   float inputSmoothDuration;
 
-  double thresh;
-  double XG;
-  double YG;
+  float thresh;
+  float XG;
+  float YG;
   float XL;
   float YL;
   float Cdb;

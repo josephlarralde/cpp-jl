@@ -113,9 +113,9 @@ LogDomainSideChain::process(sample in) {
   XG = atodb<double>(fabs(static_cast<double>(in)));
   
   YG = gc.process(XG);
-  XL = static_cast<float>(XG - YG);
-  YL = pd.process(XL);
-  Cdb = makeUp - YL;
+  XL = static_cast<float>(clipInfinity<float>(XG - YG));
+  YL = clipInfinity<float>(pd.process(XL));
+  Cdb = clipInfinity<float>(makeUp - YL);
 
   return static_cast<sample>(dbtoa<float>(Cdb));
 }
@@ -137,17 +137,17 @@ LogDomainFlattener::process(sample in1, sample in2) {
   double in1Amp = static_cast<double>(avg1.process(fabs(in1)));
   double in2Amp = static_cast<double>(avg2.process(fabs(in2)));
 
-  if (in1Amp == 0) return 0;
+  if (in1Amp <= 1e-18 || in2Amp <= 1e-18) return 0;
 
   // thresh is defined by the first input's dB value :
   thresh = atodb<double>(in1Amp);
   XG = atodb<double>(in2Amp);  
 
-  gc.setThreshold(static_cast<float>(thresh));
+  gc.setThreshold(static_cast<float>(clipInfinity<float>(thresh)));
   YG = gc.process(XG);
 
-  XL = static_cast<float>(XG - YG);
-  YL = pd.process(XL);
+  XL = static_cast<float>(clipInfinity<float>(XG - YG));
+  YL = clipInfinity<float>(pd.process(XL));
   Cdb = clipInfinity<float>(makeUp - YL);
 
   return static_cast<sample>(dbtoa<float>(Cdb));
