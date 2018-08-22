@@ -107,6 +107,10 @@ DecoupledSmoothedPeakDetector::process(float in) {
 
 //--------------------------- LOG DOMAIN DETECTOR ----------------------------//
 
+// maybe too many calls to clipInfinity due to paranoia,
+// but they're not VERY expensive
+// TODO : check which ones to remove
+
 sample
 LogDomainSideChain::process(sample in) {
   // XG = atodb<double>(avg.process(fabs(static_cast<double>(in))));
@@ -132,11 +136,17 @@ LogDomainSideChain::process(sample in, sample m, sample t, sample r, sample k) {
 
 //=========================== DB ENVELOPE FOLLOWER ===========================//
 
+// maybe too many calls to clipInfinity due to paranoia,
+// but they're not VERY expensive
+// TODO : check which ones to remove
+
 sample
 LogDomainFlattener::process(sample in1, sample in2) {
   double in1Amp = static_cast<double>(avg1.process(fabs(in1)));
   double in2Amp = static_cast<double>(avg2.process(fabs(in2)));
 
+  // empirical silence value : 1e-18
+  // (Average doesn't always return to zero due to residuals)
   if (in1Amp <= 1e-18 || in2Amp <= 1e-18) return 0;
 
   // thresh is defined by the first input's dB value :

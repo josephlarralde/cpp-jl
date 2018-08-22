@@ -47,7 +47,7 @@ namespace jl {
 
 //------------------------------- LINEAR -------------------------------------//
 
-// p is minimum the 1sr sample of a buffer
+// p is minimum the 1st sample of a buffer
 // and maximum the (n - 1)th sample of the same buffer
 // (or loop over buffer length ?)
 static inline float interpolateLinear(sample *buf, unsigned int index, float frac) {
@@ -64,7 +64,7 @@ static inline void interpolateLinearStride(sample *buf, float *res, unsigned int
   }
 }
 
-//------------------------------- BICUBIC ------------------------------------//
+//--------------------------------- CUBIC ------------------------------------//
 
 // mostly inspired from pure data's tabread4 object
 // TODO : understand how miller's algorithm works

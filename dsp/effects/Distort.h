@@ -42,6 +42,8 @@
 
 namespace jl {
 
+// simple pow function based overdrive (waveshaper)
+
 template <typename T>
 class Overdrive {
 private:
@@ -54,13 +56,36 @@ public:
   ~Overdrive() {}
 
   void setFactor(float f) {
-    factor = f;
+    factor = JL_MAX(f, 1e-9f);
   }
 
   T process(T in) {
-    z1 = static_cast<float>(in) * a0 + z1 * b1;
-    return static_cast<T>(z1);
+    if (in >= 1) { return 1; }
+    if (in <= -1) { return -1; }
+
+    if (in >= 0) { return 1f - pow(1f - in, factor); }
+    if (in < 0) { return pow(1f + in, factor) - 1f; }
   }
+};
+
+// decimator class similar to max's [degrade~] object
+// TODO
+
+template <typename T>
+class Decimate {
+private:
+  // put a buffer here to compute downsampling internally (if really needed)
+  // maybe use some accumulators / counters / similar tricks
+  // try drop sample, linear (and more evoluted) interpolation
+
+public:
+  Decimate() {}
+  ~Decimate() {}
+
+  void setSamplingRate(float sr) {}
+  void setResamplingFactor(float f) {}
+  void setRequantizationFactor(float f) {}
+  T process(T in) {}
 };
 
 } /* end namespace jl */
