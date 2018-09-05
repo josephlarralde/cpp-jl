@@ -1,8 +1,8 @@
 /**
- * @file OnePole.h
+ * @file Distort.h
  * @author Joseph Larralde
  * @date 01/08/2018
- * @brief one pole lowpass filer
+ * @brief various audio distortion algorithms
  *
  * @copyright
  * Copyright (C) 2018 by Joseph Larralde.
@@ -63,8 +63,8 @@ public:
     if (in >= 1) { return 1; }
     if (in <= -1) { return -1; }
 
-    if (in >= 0) { return 1f - pow(1f - in, factor); }
-    if (in < 0) { return pow(1f + in, factor) - 1f; }
+    if (in >= 0) { return 1 - pow(1 - in, factor); }
+    if (in < 0) { return pow(1 + in, factor) - 1; }
   }
 };
 
@@ -76,7 +76,7 @@ class Decimate {
 private:
   // put a buffer here to compute downsampling internally (if really needed)
   // maybe use some accumulators / counters / similar tricks
-  // try drop sample, linear (and more evoluted) interpolation
+  // try drop sample, linear and more interpolations
 
 public:
   Decimate() {}

@@ -46,45 +46,59 @@
 
 namespace jl {
 
-//============================== BASE CLASS ==================================//
-
-class Oscillator {
-protected:
-  float sr, msr;
-  float phase; // normalized phase
-
-public:
-  Oscillator() :
-  sr(44100), msr(sr / 1000), phase(0) {}
-
-  ~Oscillator() {}
-
-  virtual void setSamplingRate(float sr) = 0;
-  virtual void process(sample *in, sample *out, unsigned int blockSize) = 0;
+enum OscControl {
+  OscControlFreq = 0,
+  OscControlPhase
 };
-
-//=============================== DERIVED ====================================//
 
 enum OscShape {
   OscShapeSin = 0,
+  OscShapeHann,
   OscShapeTri,
   OscShapeSaw,
   OscShapeSqr,
   OscShapeTriAA,
   OscShapeSawAA,
-  OscShapeSqrAA,
+  OscShapeSqrAA
 };
+
+//============================== BASE CLASS ==================================//
+
+class Oscillator {
+protected:
+  float sr;
+  float freq;
+  float phase; // normalized phase
+
+public:
+  Oscillator() :
+  sr(44100), phase(0) {}
+
+  ~Oscillator() {}
+
+  virtual void setControlMethod(OscControl c) = 0;
+  virtual void setSamplingRate(float sr) = 0;
+
+  // virtual void setFrequency(float f) = 0;
+  // virtual void setPhase(float f) = 0;
+  virtual void process(sample *in, sample *out, unsigned int blockSize) = 0;
+};
+
+//=============================== DERIVED ====================================//
 
 class WavetableOscillator : public Oscillator {
 private:
   OscShape shape;
+  OscControl controlMethod;
   unsigned int tableSize;
   sample *table;
 
 public:
-  WavetableOscillator(OscShape s = OscShapeSin, unsigned int ts = JL_OSCILLATOR_DEFAULT_WAVETABLE_SIZE) :
-  shape(s), tableSize(ts),
-  Oscillator() {
+  WavetableOscillator(OscShape s = OscShapeSin,
+                      OscControl c = OscControlFreq,
+                      unsigned int ts = JL_OSCILLATOR_DEFAULT_WAVETABLE_SIZE) :
+  Oscillator(),
+  shape(s), controlMethod(c), tableSize(ts) {
     table = new sample[tableSize];
     createTable();
   }
@@ -93,10 +107,11 @@ public:
     delete [] table;
   }
 
-  void setFrequency(float f);
-  void setPhase(float f);
-
+  virtual void setControlMethod(OscControl c);
   virtual void setSamplingRate(float sr);
+
+  // virtual void setFrequency(float f);
+  // virtual void setPhase(float f);
   virtual void process(sample *in, sample *out, unsigned int blockSize);
 
 private:

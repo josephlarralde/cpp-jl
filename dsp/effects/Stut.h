@@ -50,7 +50,7 @@ namespace jl {
 class Stut {
 private:
   unsigned int channels;
-  float sr;
+  // float sr;
   float msr;
 
   float slice;
@@ -73,7 +73,7 @@ private:
   bool stopping, realStopping;
   int loops, nextLoops;
   int loopCounter;
-  bool silentBlockEnd;
+  // bool silentBlockEnd;
 
   long index;
 
@@ -94,7 +94,7 @@ public:
   interrupting(false), interruptIndex(0),
   releasing(false), releaseIndex(0),
   playing(false), realPlaying(false), stopping(false), realStopping(false),
-  loops(1), nextLoops(1), loopCounter(0), silentBlockEnd(false),
+  loops(1), nextLoops(1), loopCounter(0), // silentBlockEnd(false),
   index(0), recording(false), recordIndex(0),
   blk(64) {
     bufferDuration = bDuration;

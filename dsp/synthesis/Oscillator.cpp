@@ -41,20 +41,24 @@
 namespace jl {
 
 void
+WavetableOscillator::setControlMethod(OscControl c) {
+  controlMethod = c;
+}
+
+void
 WavetableOscillator::setSamplingRate(float f) {
   sr = f;
-  msr = sr / 1000;
 }
 
-void
-WavetableOscillator::setFrequency(float f) {
-  // ?
-}
+// void
+// WavetableOscillator::setFrequency(float f) {
+//   freq = JL_MAX(f, 0);
+// }
 
-void
-WavetableOscillator::setPhase(float f) {
- // ?
-}
+// void
+// WavetableOscillator::setPhase(float f) {
+//   phase = JL_CLIP(f, 0, 1);
+// }
 
 // TODO : implement poly BLEPS
 // http://metafunction.co.uk/all-about-digital-oscillators-part-2-blits-bleps/
@@ -74,11 +78,22 @@ WavetableOscillator::process(sample *in, sample *out, unsigned int blockSize) {
     // dt (duration of an audio sample in seconds) = 1 / sr
     // p (duration of a period of frequency f) = 1 / f
     // for each sample, the phase must be incremented by (dt / p) <=> (f / sr)
-    //
-    phase += *in++ / sr;
+
+    switch (controlMethod) {
+      case OscControlPhase:
+        phase = *in++;
+        break;
+
+      case OscControlFreq:
+      default:
+        phase += *in++ / sr;
+        break;
+    }
 
     if (phase >= 1) {
       phase -= floor(phase);
+    } else if (phase < 0) {
+      phase += floor(fabs(phase) + 1); // this seems ok ?
     }
 
     // EVENTUALLY APPLY PHASE DISTORTION HERE :)
@@ -100,7 +115,10 @@ WavetableOscillator::process(sample *in, sample *out, unsigned int blockSize) {
 void
 WavetableOscillator::createTable() {
   switch (shape) {
-    // case OscShapeSin:
+    case OscShapeHann:
+      generateHann(table, tableSize);
+      break;
+    case OscShapeSin:
     default: // for now always generate a sine period
       generateSine(table, tableSize);
       break;
