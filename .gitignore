@@ -1,11 +1,13 @@
 **/.DS_Store
 **/Thumbs.db
 
-control/*
-# !control/harmony/Scales.h
-# !control/harmony/Scales.cpp
+control/gesture/*
+!control/gesture/IntervalMap.h
 
-core/*
+control/harmony/*
+!control/harmony/PatternMap.h
+
+core/math/*
 
 dsp/effects/*
 !dsp/effects/Compress.h
