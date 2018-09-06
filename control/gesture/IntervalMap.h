@@ -1,5 +1,5 @@
 /**
- * @file IntervalMapper.h
+ * @file IntervalMap.h
  * @author Joseph Larralde
  * @date 14/08/2018
  * @brief map an input interval to an output interval using transfer functions
