@@ -84,8 +84,8 @@ public:
     length = static_cast<unsigned int>(fmin(len, JL_MAX_PATTERN_MAP_LENGTH));
 
     for (unsigned int i = 0; i < length; ++i) {
-      patternSize += pat[i];
-      pattern[i] = pat[i];
+      patternSize += JL_MAX(pat[i], 1);
+      pattern[i] = JL_MAX(pat[i], 1);
     }
 
     if (length == 0) {
