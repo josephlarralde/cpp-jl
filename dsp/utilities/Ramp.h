@@ -71,11 +71,16 @@ public:
     delete[] block;
   }
 
-  void ramp(TI t, unsigned long samples) {
-    target = static_cast<TO>(t);
-    increment = (t - value) / samples;
-    ramping = true;
-    sRemaining = samples;
+  void ramp(TI t, unsigned long samples = 0) {
+    if (samples == 0) {
+      ramping = false;
+      value = static_cast<TO>(t);
+    } else {
+      target = static_cast<TO>(t);
+      increment = (t - value) / samples;
+      ramping = true;
+      sRemaining = samples;
+    }
   }
 
   TO *process(unsigned int blockSize) {
