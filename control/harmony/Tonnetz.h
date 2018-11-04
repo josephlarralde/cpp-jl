@@ -47,7 +47,8 @@
 #define JL_TONNETZ_DEFAULT_SCALE 0 // natural scale patterns
 
 #include <vector>
-#include <math.h>
+// #include <cmath>
+#include <cstdlib>
 
 namespace jl {
 
@@ -232,10 +233,9 @@ public:
 private:
   void normalizeRoot() {
     if (root < 0) {
-      root = root + 12 * ((abs(root) / 12) + 1);
-    } else {
-      root = root % 12;
-    }    
+      root = root + 12 * ((std::abs(root) / 12) + 1);
+    }
+    root %= 12;
   }
 };
 
