@@ -6,6 +6,7 @@ control/gesture/*
 
 control/harmony/*
 !control/harmony/PatternMap.h
+!control/harmony/Tonnetz.h
 
 core/math/*
 
