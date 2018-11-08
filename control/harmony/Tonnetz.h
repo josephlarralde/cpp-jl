@@ -50,6 +50,11 @@
 // #include <cmath>
 #include <cstdlib>
 
+#ifdef major
+/* urgh: glibc defines 'major'... */
+# undef major
+#endif
+
 namespace jl {
 
 enum TonnetzDirection {
