@@ -55,13 +55,13 @@ namespace jl {
 // and maximum the (n - 1)th sample of the same buffer
 // (or loop over buffer length ?)
 static inline float interpolateLinear(sample *buf, unsigned int index, float frac) {
-  float *p = buf + index;
+  sample *p = buf + index;
 
   return (1. - frac) * (*p) + frac * (*(p + 1));
 }
 
 static inline void interpolateLinearStride(sample *buf, float *res, unsigned int index, float frac, unsigned int size) {
-  float *p = buf + index;
+  sample *p = buf + index;
 
   for (unsigned int i = 0; i < size; ++i) {
     *(res + i) = (1. - frac) * (*(p + i)) + frac * (*(p + i + size));
@@ -83,8 +83,8 @@ static inline void interpolateLinearStride(sample *buf, float *res, unsigned int
 static inline float interpolateCubic(sample *buf, unsigned int size,
                                        unsigned int index, float frac,
                                        bool cyclic = false) {
-  float *p = buf + index;
-  float a, b, c, d, cminusb;
+  sample *p = buf + index;
+  sample a, b, c, d, cminusb;
 
   // if cyclic, wrap around buffer values, otherwise zero-pad
 
@@ -110,13 +110,13 @@ static inline float interpolateCubic(sample *buf, unsigned int size,
   );
 }
 
-// the same with a stride ...
+// the same with a stride (for interleaved multi-channel data) ...
 
 static inline void interpolateCubicStride(sample *buf, sample *res, unsigned int size,
-                                            unsigned int index, float frac,
-                                            unsigned int stride, bool cyclic = false) {
-  float *p = buf + index * stride;
-  float a, b, c, d, cminusb;
+                                          unsigned int index, float frac,
+                                          unsigned int stride, bool cyclic = false) {
+  sample *p = buf + index * stride;
+  sample a, b, c, d, cminusb;
 
   for (unsigned int i = 0; i < stride; ++i) {
     a = (index <= 0)
@@ -132,6 +132,44 @@ static inline void interpolateCubicStride(sample *buf, sample *res, unsigned int
     d = (index > size - 3)
       ? (cyclic ? *(buf + stride * (index - size + 2)) : 0)
       : *(p + i + 2 * stride);
+
+    cminusb = c - b;
+
+    *(res + i) = b + frac * (
+      cminusb - 0.1666667f * (1. - frac) *
+      ((d - a - 3.0f * cminusb) * frac + (d + 2.0f * a - 3.0f * b))
+    );
+  }
+}
+
+// and the same with a second stride to allow reading into arrays of structs
+// containing floats or doubles
+// we use char * because it is of size 1 byte, which allows us to set the stride size
+// to a buffer's item size in bytes, obtained with the sizeof operator
+
+static inline void interpolateCubicStrideBytes(char *buf, sample *res, unsigned int size,
+                                               unsigned int index, float frac,
+                                               unsigned int stride, unsigned int sampleSize,
+                                               bool cyclic = false) {
+  unsigned int strideSize = stride * sampleSize;
+  char *charBuf = static_cast<char *>(buf);
+  char *p = charBuf + index * strideSize; // because char has a 1 byte size
+  sample a, b, c, d, cminusb;
+
+  for (unsigned int i = 0; i < stride; ++i) {
+    a = (index <= 0)
+      ? (cyclic ? *reinterpret_cast<sample *>(charBuf + strideSize * (size + index - 1)) : 0)
+      : *reinterpret_cast<sample *>(p + i - sampleSize);
+
+    b = *reinterpret_cast<sample *>(p + i);
+
+    c = (index > size - 2)
+      ? (cyclic ? *reinterpret_cast<sample *>(charBuf + strideSize * (index - size + 1)) : 0)
+      : *reinterpret_cast<sample *>(p + i + sampleSize);
+
+    d = (index > size - 3)
+      ? (cyclic ? *reinterpret_cast<sample *>(charBuf + strideSize * (index - size + 2)) : 0)
+      : *reinterpret_cast<sample *>(p + i + 2 * sampleSize);
 
     cminusb = c - b;
 
