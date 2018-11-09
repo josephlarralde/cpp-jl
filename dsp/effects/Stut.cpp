@@ -118,7 +118,7 @@ Stut::stop() {
 }
 
 void
-Stut::process(float **ins, float **outs, unsigned int blockSize) {
+Stut::process(sample **ins, sample **outs, unsigned int blockSize) {
   long longBlockSize = (long)(blockSize);
 
   if (blk != longBlockSize) {
@@ -194,7 +194,7 @@ Stut::process(float **ins, float **outs, unsigned int blockSize) {
     // it's the same thing as taking directly from the input (in principle)
 
     for (unsigned int c = 0; c < channels; ++c) {
-      float *out = outs[c];
+      sample *out = outs[c];
 
       if (!playing || (interrupting && loopCounter == -1)) { //  we were not playing and got triggered
         out[currentIndex] = ins[c][currentIndex] * rVal * iVal;

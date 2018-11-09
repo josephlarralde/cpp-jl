@@ -90,14 +90,16 @@ private:
   // THEN SWAP BUFFERS IN YOUR HOST ENVIRONMENT.
   // SEE THE PD EXTERNAL FOR AN EXAMPLE IMPLEMENTATION.
 
-  float *buf;
+  sample *buf;
   float bufMsr;
   unsigned int bufChannels;
+  unsigned int bufStride;
   long bufLen; // samples
 
-  float *nextBuf;
+  sample *nextBuf;
   float nextBufMsr;
   unsigned int nextBufChannels;
+  unsigned int nextBufStride;
   long nextBufLen; // samples
 
   bool switchBufAsap;
@@ -113,8 +115,9 @@ public:
   interruptIndex(0), lastLastIndex(0), isFirstVector(true),
   begin(0), end(0), sBegin(0), sLen(0), sStopLen(0), silentBlockEnd(false),
   rvs(false), realRvs(false), loop(false), realLoop(false),
-  bufMsr(44.1), bufLen(0),
-  nextBufMsr(44.1), nextBufLen(0), switchBufAsap(false),
+  bufMsr(44.1), bufChannels(1), bufStride(sizeof(float)), bufLen(0),
+  nextBufMsr(44.1), nextBufChannels(1), nextBufStride(sizeof(float)), nextBufLen(0),
+  switchBufAsap(false),
   msrr(1), blk(64) {
     sFadi = fadi * msr;
     sFado = fado * msr;
@@ -123,7 +126,13 @@ public:
 
   ~Gbend() {}
 
-  void setBuffer(float *buf, unsigned long length = 0, float sr = 1, unsigned int channels = 1);
+  void setBuffer(sample *buf, unsigned long length = 0, float sr = 1,
+                 unsigned int channels = 1);
+  // call this from pd with stride = sizeof(t_word); w_float is the first member in a t_word,
+  // so a cast should be sufficient and no starting offset is needed.
+  void setBufferStride(sample *buf, unsigned long length = 0, float sr = 1,
+                       unsigned int channels = 1, unsigned int stride = sizeof(float));
+  // void setBufferStride(unsigned int stride); // stride == 0 means no stride
   void setSamplingRate(float sr);
 
   void setBegin(float f);
@@ -141,7 +150,7 @@ public:
 
   // this method will be called from the audio thread
   // the input signal is the pitch control signal
-  void process(float *in, float **outs, unsigned int blockSize);
+  void process(sample *in, sample **outs, unsigned int blockSize);
 
   // this is called during process
   // override it in child classes to get useful sample accurate events
@@ -151,7 +160,7 @@ public:
 private:
   void computeParameters();
   void updateBuffer();
-  void playSilence(float **outs);
+  void playSilence(sample **outs);
 };
 
 } /* end namespace jl */

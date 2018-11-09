@@ -125,7 +125,7 @@ public:
   void stop();
 
   // this method will be called from the audio thread
-  void process(float **ins, float **outs, unsigned int blockSize);
+  void process(sample **ins, sample **outs, unsigned int blockSize);
 
   // this is called during process
   // override it in child classes to get useful sample accurate events

@@ -56,7 +56,8 @@
 namespace jl {
 
 void
-Gbend::setBuffer(float *b, unsigned long bLen, float bSr, unsigned int bChannels) {
+Gbend::setBuffer(sample *b, unsigned long bLen, float bSr,
+                 unsigned int bChannels) {
   // TODO: add a #DEFINE and #ifdef condition to allow building a dumb version
   // where the buffer is updated immediately
 
@@ -69,6 +70,19 @@ Gbend::setBuffer(float *b, unsigned long bLen, float bSr, unsigned int bChannels
   nextBufLen = bLen;
   nextBufMsr = bSr / 1000;
   nextBufChannels = bChannels;
+  nextBufStride = sizeof(sample);
+
+  switchBufAsap = true;
+}
+
+void
+Gbend::setBufferStride(sample *b, unsigned long bLen, float bSr,
+                       unsigned int bChannels, unsigned int stride) {
+  nextBuf = b;//static_cast<float *>(b);
+  nextBufLen = bLen;
+  nextBufMsr = bSr / 1000;
+  nextBufChannels = bChannels;
+  nextBufStride = stride;
 
   switchBufAsap = true;
 }
@@ -153,7 +167,7 @@ Gbend::stop() {
 }
 
 void
-Gbend::process(float *in, float **outs, unsigned int blockSize) {
+Gbend::process(sample *in, sample **outs, unsigned int blockSize) {
   // TODO : add security here in case blockSize > JL_MAX_BLOCK_SIZE
   // and make method call itself as many times as necessary
   
@@ -293,14 +307,18 @@ Gbend::process(float *in, float **outs, unsigned int blockSize) {
       // @todo : implement channel offset as in the to-be-updated max gbend external
       // fp = buf + ((ch + x->a_channel_offset) % channelcount) + index * channelcount;
 
-      float res[bufChannels];
+      sample res[bufChannels];
 
       // this is a paranoid safety guard to avoid segfaults if buffer was
       // updated by some obscure thread :
 
       if (index < bufLen - 3 && buf != 0) {
         // ok, go (this works with pd but other conditions might be required for more safety)
-        interpolateCubicStride(buf, &(res[0]), bufLen, index, frac, bufChannels);
+        // interpolateCubicStride(buf, &(res[0]), bufLen, index, frac, bufChannels);
+        // ==> actually this doesn't work well with pd 64 bit because buffers are arrays of structs
+
+        // now with this we are compatible with pd 64 bit ! yay !
+        interpolateCubicStrideBytes(reinterpret_cast<char *>(buf), &(res[0]), bufLen, index, frac, bufChannels, bufStride);
       } else {
         // don't read into buf !
         for (unsigned int i = 0; i < bufChannels; ++i) {
@@ -311,7 +329,7 @@ Gbend::process(float *in, float **outs, unsigned int blockSize) {
       int currentIndex = blk - ntmp - 1;
 
       for (unsigned int ch = 0; ch < channels; ch++) {
-        float *out = outs[ch];
+        sample *out = outs[ch];
         if (ch >= bufChannels) {
           out[currentIndex] = outs[ch - bufChannels][currentIndex];
         } else {
@@ -452,8 +470,9 @@ Gbend::updateBuffer() {
     bufLen = nextBufLen;
     bufMsr = nextBufMsr;
     bufChannels = nextBufChannels;
+    bufStride = nextBufStride;
+    
     switchBufAsap = false;
-
     msrr = msr / bufMsr;
 
     // post("Gbend using new buffer of length %i, msr %f and %i channels", bufLen, bufMsr, bufChannels);
@@ -462,9 +481,9 @@ Gbend::updateBuffer() {
   //*/
 }
 
-void Gbend::playSilence(float **outs) {
+void Gbend::playSilence(sample **outs) {
   for (unsigned int ch = 0; ch < channels; ch++) {
-    float *out = outs[ch];
+    sample *out = outs[ch];
     int ntmp = blk;
 
     while (ntmp-- > 0) {
