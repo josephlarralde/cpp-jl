@@ -38,6 +38,10 @@
 #ifndef _JL_H_
 #define _JL_H_
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 #define JL_VERSION_MAJOR 0
 #define JL_VERSION_MINOR 0
 #define JL_VERSION_PATCH 1

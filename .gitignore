@@ -9,6 +9,8 @@ control/harmony/*
 !control/harmony/Tonnetz.h
 
 core/math/*
+#!core/math/KdTree.h
+#!core/math/Moments.h
 
 dsp/effects/*
 !dsp/effects/Compress.h
@@ -34,7 +36,7 @@ dsp/utilities/*
 !dsp/utilities/units.h
 !dsp/utilities/wavetable.h
 
-# IGNORE ALL OTHER FOLDER FOR NOW
+# IGNORE ALL OTHER FOLDERS FOR NOW
 
 fsm/
 plug/

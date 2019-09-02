@@ -2,9 +2,9 @@
  * @file Stut.h
  * @author Joseph Larralde
  * @date 09/06/2018
- * @brief pitch signal controlled stutter effect with integrated fade in / fade out system and start / stop messages
+ * @brief stutter effect with integrated fade in / fade out system and start / stop messages
  *
- * Stutter effect featuring :
+ * Stutter effect featuring : (todo)
  *
  * It is intended to be simple enough to allow an easy integration into a variety
  * of environments
@@ -50,6 +50,8 @@ namespace jl {
 class Stut {
 private:
   unsigned int channels;
+  bool muteFirstSlice, nextMuteFirstSlice;
+
   // float sr;
   float msr;
 
@@ -88,6 +90,7 @@ private:
 public:
   Stut(float bDuration, unsigned int c = 1) :
   channels(c),
+  muteFirstSlice(false), nextMuteFirstSlice(false),
   msr(44.1), slice(0),
   fadi(5), fado(5), interrupt(5), release(5),
   sSlice(0), sStopLen(0),
@@ -120,6 +123,7 @@ public:
   void setFadeOut(float f);
   void setInterrupt(float f);
   void setRelease(float f);
+  void setMuteFirstSlice(bool m);
 
   void start();
   void stop();

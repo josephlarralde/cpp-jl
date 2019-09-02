@@ -95,6 +95,11 @@ Stut::setRelease(float f) {
 }
 
 void
+Stut::setMuteFirstSlice(bool m) {
+  nextMuteFirstSlice = m;
+}
+
+void
 Stut::start() {
   if (!interrupting) {
     interrupting = true;
@@ -198,7 +203,8 @@ Stut::process(sample **ins, sample **outs, unsigned int blockSize) {
 
       if (!playing || (interrupting && loopCounter == -1)) { //  we were not playing and got triggered
         out[currentIndex] = ins[c][currentIndex] * rVal * iVal;
-      } else if (index < (long) bufferSamples) {
+      // } else if (index < (long) bufferSamples) {
+      } else if (index < (long) bufferSamples && !(muteFirstSlice && loopCounter == 0)) { // !A || !B <=> !(A && B)
         out[currentIndex] = buffer[index * channels + c] * iVal * fVal;
       } else {
         out[currentIndex] = 0;
@@ -272,6 +278,7 @@ Stut::endReachCallback(int endReachType) {
 void
 Stut::computeParameters() {
   loops = nextLoops;
+  muteFirstSlice = nextMuteFirstSlice;
 
   // MINIMUM SELECTION 1 SIGNAL BLOCK SIZE
   // TODO: CHECK IF MINIMUM 2 SAMPLES WOULD BE BETTER (ALLOWING 1 SAMPLE FADES)
