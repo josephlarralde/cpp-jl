@@ -52,7 +52,7 @@
 
 #ifdef major
 /* urgh: glibc defines 'major'... */
-# undef major
+#undef major
 #endif
 
 namespace jl {
