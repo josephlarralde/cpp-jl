@@ -13,6 +13,7 @@ core/math/*
 #!core/math/Moments.h
 
 dsp/effects/*
+!dsp/effects/Biquad.h
 !dsp/effects/Compress.h
 !dsp/effects/Compress.cpp
 !dsp/effects/Distort.h
