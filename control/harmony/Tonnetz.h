@@ -37,6 +37,8 @@
 
 // see
 // http://www.oxfordhandbooks.com/view/10.1093/oxfordhb/9780199935321.001.0001/oxfordhb-9780199935321-e-003
+// and
+// https://guichaoua.gitlab.io/web-hexachord/
 // for more ideas
 
 #ifndef _JL_TONNETZ_H_

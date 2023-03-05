@@ -66,9 +66,10 @@ static inline void interpolateLinearStride(sample *buf, float *res, unsigned int
 
 //--------------------------------- CUBIC ------------------------------------//
 
-// mostly inspired from pure data's tabread4 object
-// TODO : understand how miller's algorithm works
-// what kind of optimization is this ? is "cubic" an appropriate name ?
+// this is a cubic interpolation, mostly inspired from pure data's tabread4 object
+// see : https://www.mail-archive.com/pd-list@iem.at/msg19006.html
+// and updated link : http://msp.ucsd.edu/techniques/latest/book-html/node31.html
+
 // dig this :
 // http://en.dsplib.org/content/resampling_lagrange_ex/resampling_lagrange_ex.html#r2
 // ==> might help to avoid aliasing

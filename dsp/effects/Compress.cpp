@@ -140,6 +140,9 @@ LogDomainSideChain::process(sample in, sample m, sample t, sample r, sample k) {
 // but they're not VERY expensive
 // TODO : check which ones to remove
 
+// WTF, LOOKS LIKE THERE ARE STILL SOME INIFINITY VALUES GOING OUT !!!!
+// HUNT THEM !!!!
+
 sample
 LogDomainFlattener::process(sample in1, sample in2) {
   double in1Amp = static_cast<double>(avg1.process(fabs(in1)));
@@ -147,7 +150,8 @@ LogDomainFlattener::process(sample in1, sample in2) {
 
   // empirical silence value : 1e-18
   // (Average doesn't always return to zero due to residuals)
-  if (in1Amp <= 1e-18 || in2Amp <= 1e-18) return 0;
+  if (in1Amp <= 1e-18 || in2Amp <= 1e-18) return 0; // THIS WAS NOT COMMENTED !!!!!!!!
+  // if (in1Amp <= 1e-18 || in2Amp <= 1e-18) return 1;
 
   // thresh is defined by the first input's dB value :
   thresh = atodb<double>(in1Amp);
