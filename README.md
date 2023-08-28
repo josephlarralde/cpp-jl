@@ -1,6 +1,6 @@
-# jl.cpp.lib
+# cpp-jl
 
-### a collection of audio related c++ classes and functions
+### a collection of audio and music related c++ classes and functions
 
 This library is mostly a place where I put useful pieces of code from time to time,
 as I develop them for various needs.
