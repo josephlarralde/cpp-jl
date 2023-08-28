@@ -67,8 +67,13 @@ public:
   Ramp(unsigned int blockSize = 64) : bSize(blockSize) {
     block = new TO[bSize];
   }
+
   ~Ramp() {
     delete[] block;
+  }
+
+  bool isRamping() {
+    return ramping;
   }
 
   void ramp(TI t, unsigned long samples = 0) {

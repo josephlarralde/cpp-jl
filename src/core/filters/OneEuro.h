@@ -1,11 +1,12 @@
 /**
- * @file jl.h
+ * @file OneEuro.h
  * @author Joseph Larralde
- * @date 01/08/2018
- * @brief main header of the jl library
+ * @date 29/07/2023
+ * @brief one euro lowpass filter (see Casiez, Roussel & Vogel, 1 euro filter :
+ * a simple speed-based low-pass filter for noisy input in interactive systems)
  *
  * @copyright
- * Copyright (C) 2018 by Joseph Larralde.
+ * Copyright (C) 2023 by Joseph Larralde.
  * All rights reserved.
  *
  * License (BSD 3-clause)
@@ -35,35 +36,51 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _JL_H_
-#define _JL_H_
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
+#ifndef _JL_ONEEURO_H_
+#define _JL_ONEEURO_H_
 
-#define JL_VERSION_MAJOR 0
-#define JL_VERSION_MINOR 0
-#define JL_VERSION_PATCH 1
-#define JL_VERSION "0.0.1"
-
-#define JL_MAX_BLOCK_SIZE 4096
-
-#define JL_MIN(X, M) (X > M) ? M : X
-#define JL_MAX(X, M) (X < M) ? M : X
-#define JL_CLIP(X, A, B) (X < A) ? A : ((X > B) ? B : X)
+#include <math.h>
 
 namespace jl {
-  typedef float sample;
-  typedef float value;
-}
 
-#include "dsp/utilities/units.h"
-#include "dsp/utilities/wavetable.h"
-#include "dsp/utilities/Ramp.h"
-#include "dsp/effects/Compress.h"
-#include "dsp/effects/Stut.h"
-#include "dsp/sampler/Gbend.h"
-#include "dsp/synthesis/Oscillator.h"
+template <typename T>
+class OneEuro {
+private:
+  float samplingRate;
+  float cutoffFrequency;
+  double a0, b1, z1;
 
-#endif /* _JL_H_ */
+public:
+  OneEuro(float fc = 20) :
+  samplingRate(44100), cutoffFrequency(fc), z1(0) {
+    updateCoefficients();
+  }
+
+  ~OneEuro() {}
+
+  void setSamplingRate(float sr) {
+    samplingRate = sr;
+    updateCoefficients();
+  }
+
+  void setCutoffFrequency(float f) {
+    cutoffFrequency = f;
+    updateCoefficients();
+  }
+
+  T process(T in) {
+    z1 = static_cast<float>(in) * a0 + z1 * b1;
+    return static_cast<T>(z1);
+  }
+
+private:
+  updateCoefficients() {
+    b1 = exp(-2.0 * M_PI * cutoffFrequency / samplingRate);
+    a0 = 1.0 - b1;    
+  }
+};
+
+} /* end namespace jl */
+
+#endif /* _JL_ONEEURO_H_ */

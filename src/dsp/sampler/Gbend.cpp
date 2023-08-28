@@ -138,6 +138,11 @@ Gbend::setInterrupt(float f) {
 }
 
 void
+Gbend::getPosition() {
+  positionRequested = true;
+}
+
+void
 Gbend::start() {
   if (!interrupting) {
     interrupting = true;
@@ -146,7 +151,7 @@ Gbend::start() {
 
     if (!playing) {
       playing = true;
-      silentBlockEnd = true;
+      silentBlockEnd = true; // what's this for already ?
 
       // if trueLoop has been set false by stop msg,
       // we set it back to true here :
@@ -318,7 +323,17 @@ Gbend::process(sample *in, sample **outs, unsigned int blockSize) {
         // ==> actually this doesn't work well with pd 64 bit because buffers are arrays of structs
 
         // now with this we are compatible with pd 64 bit ! yay !
-        interpolateCubicStrideBytes(reinterpret_cast<char *>(buf), &(res[0]), bufLen, index, frac, bufChannels, bufStride);
+        interpolateCubicStrideBytes<sample, unsigned long, double, unsigned int>(
+          reinterpret_cast<char*>(buf), &(res[0]), bufLen, index, frac, bufChannels, bufStride
+        );
+
+        // interpolateCubicStrideBytes(reinterpret_cast<char *>(buf), &(res[0]),
+        //                             bufLen, index, frac, bufChannels, bufStride);
+
+        if (positionRequested) {
+          getPositionCallback((index + frac) / bufMsr);
+          positionRequested = false;
+        }
       } else {
         // don't read into buf !
         for (unsigned int i = 0; i < bufChannels; ++i) {
@@ -398,6 +413,11 @@ Gbend::process(sample *in, sample **outs, unsigned int blockSize) {
 
 void
 Gbend::endReachCallback(int endReachType) {
+  // do nothing in base class
+}
+
+void
+Gbend::getPositionCallback(float position) {
   // do nothing in base class
 }
 

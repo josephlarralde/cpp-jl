@@ -2,7 +2,8 @@
  * @file Gbend.h
  * @author Joseph Larralde
  * @date 07/06/2018
- * @brief pitch signal controlled sample player with integrated fade in / fade out system and start / stop messages
+ * @brief pitch signal controlled sample player with integrated
+ * fade in / fade out system and start / stop messages
  *
  * This class is a monophonic (multi-channel but not polyphonic) audio player
  * with various useful features :
@@ -62,11 +63,11 @@ private:
   float msr; // samples / ms
   float pitch, cpitch;
   float fadi; // ms
-  long sFadi; // samples
+  unsigned long sFadi; // samples
   float fado; //ms
-  long sFado; // samples
+  unsigned long sFado; // samples
   float interrupt; // ms
-  long sInterrupt; //samples
+  unsigned long sInterrupt; //samples
   bool interrupting;
   bool playing, realPlaying; // see why 2 vars are needed in Gbend.cpp line 329
   bool stopping, realStopping;
@@ -77,7 +78,7 @@ private:
   bool isFirstVector;
 
   float begin, end;
-  long sBegin, sLen, sStopLen;
+  unsigned long sBegin, sLen, sStopLen;
   bool silentBlockEnd;
 
   bool rvs, realRvs;
@@ -94,18 +95,19 @@ private:
   float bufMsr;
   unsigned int bufChannels;
   unsigned int bufStride;
-  long bufLen; // samples
+  unsigned long bufLen; // samples
 
   sample *nextBuf;
   float nextBufMsr;
   unsigned int nextBufChannels;
   unsigned int nextBufStride;
-  long nextBufLen; // samples
+  unsigned long nextBufLen; // samples
 
   bool switchBufAsap;
+  bool positionRequested;
 
   float msrr; // ratio to apply to pitch when msr != bufMsr
-  long blk;
+  unsigned long blk;
 
 public:
   Gbend(unsigned int c = 1) :
@@ -118,6 +120,7 @@ public:
   bufMsr(44.1), bufChannels(1), bufStride(sizeof(float)), bufLen(0),
   nextBufMsr(44.1), nextBufChannels(1), nextBufStride(sizeof(float)), nextBufLen(0),
   switchBufAsap(false),
+  positionRequested(false),
   msrr(1), blk(64) {
     sFadi = fadi * msr;
     sFado = fado * msr;
@@ -144,6 +147,7 @@ public:
   void setFadeOut(float f);
   void setFades(float f);
   void setInterrupt(float f);
+  void getPosition();
 
   void start();
   void stop();
@@ -155,6 +159,7 @@ public:
   // this is called during process
   // override it in child classes to get useful sample accurate events
   virtual void endReachCallback(int endReachType);
+  virtual void getPositionCallback(float position);
   virtual void bufUpdatedCallback();
 
 private:

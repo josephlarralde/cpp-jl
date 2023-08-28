@@ -1,11 +1,11 @@
 /**
- * @file units.h
+ * @file FIR.h
  * @author Joseph Larralde
- * @date 01/08/2018
- * @brief audio related unit converters
+ * @date 28/07/2023
+ * @brief finite (parametric) impulse response filter
  *
  * @copyright
- * Copyright (C) 2018 by Joseph Larralde.
+ * Copyright (C) 2023 by Joseph Larralde.
  * All rights reserved.
  *
  * License (BSD 3-clause)
@@ -35,47 +35,66 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _JL_UNITS_H_
-#define _JL_UNITS_H_
+#ifndef _JL_WEIGHTEDMEAN_H_
+#define _JL_WEIGHTEDMEAN_H_
 
-#include <cmath>
-#include <cassert>
-#include <limits>
 #include "../../jl.h"
 
 namespace jl {
 
-// source :
-// http://www.sengpielaudio.com/calculator-FactorRatioLevelDecibel.htm
-
-// amplitude 1 <=> 0 dB
-
-static_assert(std::numeric_limits<float>::is_iec559, "IEEE 754 required");
-static_assert(std::numeric_limits<double>::is_iec559, "IEEE 754 required");
-
 template <typename T>
-T clipInfinity(T val) {
-  if (val == -std::numeric_limits<T>::infinity()) {
-    return std::numeric_limits<T>::lowest();
-  } else if (val == std::numeric_limits<T>::infinity()) {
-    return std::numeric_limits<T>::max();
+class WeightedMean {
+  std::size_t windowSize;
+  std::deque<T> window;
+
+  float weightFactor;
+  float weightUnit; // 1.0f / windowSize : smallest weight when factor is 1
+  float weightSum;
+  std::vector<float> weights;
+
+public:
+  WeightedMean(std::size_t maxWinSize = 32) :
+  weightFactor(1.0f) {
+    window.resize(maxWinSize, static_cast<T>(0));
+    weights.resize(maxWinSize, 0.0f);
+    setWindowSize(maxWinSize);
+    computeWeights();
   }
 
-  return val;
-}
+  void setWindowSize(std::size_t size) {
+    windowSize = std::minimum(size, window.size());
+    weightUnit = 1.0f / windowSize;
+    computeWeights();
+  }
 
-template <typename T>
-T dbtoa(T db) {
-  T res = pow(10, clipInfinity<T>(db) / 20);
-  return clipInfinity<T>(res);
-}
+  void setWeightFactor(float f) {
+    weightFactor = f;
+    computeWeights();
+  }
 
-template <typename T>
-T atodb(T a) {
-  T res = 20 * log10(clipInfinity<T>(a));
-  return clipInfinity<T>(res);
-}
+  T process(T val) {
+    window.push_front(val);
+    window.pop_back();
 
-} /* end namespace jl */
+    T res = static_cast<T>(0);
 
-#endif /* _JL_UNITS_H_ */
+    for (std::size_t = 0; i < windowSize; ++i) {
+      res += static_cast<T>(window[i] * weights[i]);
+    }
+
+    return res / static_cast<T>(weightSum);
+  }
+
+private:
+  void computeWeights() {
+    weightSum = 0.0f;
+    for (std::size_t i = 0; i < windowSize; ++i) {
+      weights[i] = std::pow((windowSize - i) * weightUnit, weightFactor);
+      weightSum += weights[i];
+    }
+  }
+};
+
+} // end namespace jl
+
+#endif /* _JL_WEIGHTEDMEAN_H_ */

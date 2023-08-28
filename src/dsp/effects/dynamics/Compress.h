@@ -43,10 +43,10 @@
 // by DIMITRIOS GIANNOULIS, MICHAEL MASSBERG, AND JOSHUA D. REISS,
 // Queen Mary University of London
 
-#include "../../jl.h"
-#include "../utilities/units.h"
-#include "../utilities/Ramp.h"
-#include "../utilities/Average.h"
+#include "../../../jl.h"
+#include "../../utilities/units.h"
+#include "../../utilities/Ramp.h"
+#include "../../../core/filters/Average.h"
 
 // #include "m_pd.h"
 

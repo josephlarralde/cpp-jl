@@ -38,10 +38,10 @@
 #ifndef _JL_PATTERNMAP_H_
 #define _JL_PATTERNMAP_H_
 
-#define JL_MAX_PATTERN_MAP_LENGTH 64
-
 #include <math.h>
 #include "../../jl.h"
+
+#define JL_MAX_PATTERN_MAP_LENGTH 64
 
 namespace jl {
 

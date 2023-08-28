@@ -44,10 +44,6 @@
 #ifndef _JL_TONNETZ_H_
 #define _JL_TONNETZ_H_
 
-#define JL_TONNETZ_DEFAULT_QUAD 0 // natural scale patterns
-#define JL_TONNETZ_DEFAULT_PENTA 0 // natural scale patterns
-#define JL_TONNETZ_DEFAULT_SCALE 0 // natural scale patterns
-
 #include <vector>
 // #include <cmath>
 #include <cstdlib>
@@ -56,6 +52,10 @@
 /* urgh: glibc defines 'major'... */
 #undef major
 #endif
+
+#define JL_TONNETZ_DEFAULT_QUAD 0 // natural scale patterns
+#define JL_TONNETZ_DEFAULT_PENTA 0 // natural scale patterns
+#define JL_TONNETZ_DEFAULT_SCALE 0 // natural scale patterns
 
 namespace jl {
 
