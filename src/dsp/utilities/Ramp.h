@@ -49,7 +49,7 @@ namespace jl {
 // TODO : compare both kinds of fade and choose by ear
 
 // the Gbend class could be rewritten using mostly ramps (for fades, interrupt and buffer index)
-// TODO : create a speed factor driven version of the ramp (?)
+// TODO : create a speed factor driven version of the ramp (? -> YES!)
 
 template <typename TI, typename TO>
 class Ramp {

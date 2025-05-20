@@ -6,7 +6,7 @@
 // then eventually implement other spectral effects such as filters, gizmo
 // (spectral domain pitch shift abstraction in Max), etc.
 
-// this class should take incoming vectors au time-domain signal
+// this class should take incoming vectors containing time-domain signal chunks
 // it should also have a window size (power of 2) and overlap (integer) arguments
 
 class FFT {
